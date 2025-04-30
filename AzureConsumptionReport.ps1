@@ -19,6 +19,7 @@ $headers = @{
 # Get all subscriptions
 $subscriptions = Get-AzSubscription
 $tenantId = $subscriptions.TenantId[0]
+
 # Prepare an array to store the results
 $results = @()
 
