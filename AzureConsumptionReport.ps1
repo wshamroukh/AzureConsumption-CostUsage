@@ -6,7 +6,9 @@ $endTime = "2025-04-29"
 Connect-AzAccount
 
 # Get token for ARM
-$token = (Get-AzAccessToken -ResourceUrl "https://management.azure.com/").Token
+$secureToken = (Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/").Token
+$ssPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureToken)
+$token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ssPtr)
 
 # Set headers
 $headers = @{
