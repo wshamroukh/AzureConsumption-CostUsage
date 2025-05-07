@@ -74,11 +74,11 @@ foreach ($subscription in $subscriptions) {
         UsageUSD     = $roundedCost
     }
 }
-Write-Output "\nUsage report from $startDate to $endDate for tenant ($tenantId):"
+Write-Output "`nAzure consumption report from $startDate to $($endDate):"
 # Output the results in a table
-$results | Format-Table -AutoSize
+$results | Sort-Object UsageUSD -Descending | Format-Table -AutoSize
 
 # Calculate and display total cost
 $totalUsage = ($results | Where-Object { $_.UsageUSD -is [double] } | Measure-Object -Property UsageUSD -Sum).Sum
 $totalUsageRounded = [math]::Round($totalUsage, 2)
-Write-Output "Total Usage Across All Subscriptions under tenant ($tenantId): $totalUsageRounded USD"
+Write-Output "Total Azure consumption across all subscriptions: $totalUsageRounded USD"
