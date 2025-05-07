@@ -1,3 +1,5 @@
+# reference script: https://github.com/yannickdils/TheFinOpsXFiles/blob/a82a9829915c9ae50fb60c3c089f2c8d73f29599/Budget%20vs%20Cost/Script/RetrieveConsumptionUpdate.ps1
+
 # Period yyyy-mm-dd
 $startDate = "2025-04-01"
 $endDate = "2025-04-30"
