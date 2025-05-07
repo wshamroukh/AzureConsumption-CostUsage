@@ -1,6 +1,6 @@
-# Period
-$startTime = "2025-03-31"
-$endTime = "2025-04-29"
+# Period yyyy-mm-dd
+$startDate = "2025-04-01"
+$endDate = "2025-05-06"
 
 # Connect to Azure account
 Connect-AzAccount
@@ -28,12 +28,35 @@ foreach ($subscription in $subscriptions) {
     $subscriptionName = $subscription.Name
     Write-Output "Processing subscription: $subscriptionName ($subscriptionId)"
 
-    $simpleQueryUrl = "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.Consumption/usageDetails?api-version=2024-08-01&`$filter=properties/usageStart ge '$startTime' and properties/usageEnd le '$endTime'"
+    $apiVersion = "2023-03-01"
+    $simpleQueryUrl = "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.CostManagement/query?api-version=$apiVersion"
+    
+    # Build the request body
+    $body = @{
+        type = "Usage"
+        timeframe = "Custom"
+        timePeriod = @{
+            from = $startDate
+            to = $endDate
+        }
+        dataset = @{
+            granularity = "None"
+            aggregation = @{
+                totalCost = @{
+                    name = "CostUSD"
+                    function = "Sum"
+                }
+            }
+        }
+    }
+
+    # Convert body to JSON
+    $bodyJson = $body | ConvertTo-Json -Depth 10
 
     try {
-        $usageResponse = Invoke-RestMethod -Uri $simpleQueryUrl -Method Get -Headers $headers
-        if ($usageResponse.value -and $usageResponse.value.Count -gt 0) {
-            $totalCost = ($usageResponse.value | ForEach-Object { $_.properties.costInUSD } | Measure-Object -Sum).Sum
+        $usageResponse = Invoke-RestMethod -Uri $simpleQueryUrl -Method Post -Body $bodyJson -Headers $headers
+        if ($usageResponse.properties.rows -and $usageResponse.properties.rows.Count -gt 0) {
+            $totalCost = $usageResponse.properties.rows[0][0]
             $roundedCost = [math]::Round($totalCost, 2)
         } else {
             $roundedCost = 0
@@ -49,7 +72,7 @@ foreach ($subscription in $subscriptions) {
         UsageUSD     = $roundedCost
     }
 }
-
+Write-Output "\nUsage report from $startDate to $endDate for tenant ($tenantId):"
 # Output the results in a table
 $results | Format-Table -AutoSize
 
