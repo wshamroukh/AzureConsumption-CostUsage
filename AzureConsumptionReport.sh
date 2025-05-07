@@ -15,19 +15,18 @@ subscriptions=$(az account list --query '[].{id:id, name:name}' -o json)
 
 # Initialize total cost
 total=0
+# Initialize associative array for subscription costs
+declare -A sub_costs
 
-# Print header
-printf "Azure consumption report from $startDate to $endDate:\n"
-printf "%-50s %10s\n" "Subscription" "Usage (USD)"
-printf "%-50s %10s\n" "------------" "-----------"
 # install required tools
 #sudo apt install -y jq bc
+
 # Loop through each subscription
 while read -r sub; do
     subscriptionId=$(echo "$sub" | jq -r '.id')
     subscriptionName=$(echo "$sub" | jq -r '.name')
 
-    #echo "Processing subscription: $subscriptionName ($subscriptionId)" >&2
+    echo "Processing subscription: $subscriptionName ($subscriptionId)" >&2
 
     # Define API URL
     apiVersion="2023-03-01"
@@ -60,11 +59,22 @@ while read -r sub; do
         -d "$body")
 
     cost=$(echo "$response" | jq '[.properties.rows[0][0]] | add // 0')
-    printf "%-50s %10.2f\n" "$subscriptionName" "$cost"
+    sub_costs["$subscriptionName"]=$cost
 
     total=$(echo "$total + $cost" | bc)
-done < <(echo "$subscriptions" | jq -c '.[]')
+done < <(echo "$subscriptions" | jq -c '.[]') 
+
+# Print header
+printf "Azure consumption report from $startDate to $endDate:\n"
+printf "%-50s %10s\n" "Subscription" "Usage (USD)"
+printf "%-50s %10s\n" "------------" "-----------"
+
+for name in "${!sub_costs[@]}"; do
+    echo -e "${sub_costs[$name]}\t$name"
+done | sort -k1,1nr | while IFS=$'\t' read -r cost name; do
+    printf "%-50s %10.2f\n" "$name" "$cost"
+done
 
 # Print total cost
 echo ""
-echo "Total Usage Across All Subscriptions: $(printf "%.2f" "$total") USD"
+echo "Total Azure consumption across all subscriptions: $(printf "%.2f" "$total") USD"
