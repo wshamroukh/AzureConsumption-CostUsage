@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Period yyyy-mm-dd
-startDate="2025-04-01"
-endDate="2025-05-06"
+startDate="2025-05-01"
+endDate="2025-05-07"
 
 # Log in to Azure
-#az login --only-show-errors
+az login --only-show-errors
 
 # Get access token
 access_token=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
