@@ -1,6 +1,6 @@
 # Period yyyy-mm-dd
 $startDate = "2025-04-01"
-$endDate = "2025-05-06"
+$endDate = "2025-04-30"
 
 # Connect to Azure account
 Connect-AzAccount
@@ -40,7 +40,7 @@ foreach ($subscription in $subscriptions) {
             to = $endDate
         }
         dataset = @{
-            granularity = "None"
+            granularity = "Accumelated"
             aggregation = @{
                 totalCost = @{
                     name = "CostUSD"
