@@ -2,7 +2,7 @@
 
 # Period yyyy-mm-dd
 $startDate = "2025-04-01"
-$endDate = "2025-04-30"
+$endDate = "2025-05-06"
 
 # Connect to Azure account
 Connect-AzAccount

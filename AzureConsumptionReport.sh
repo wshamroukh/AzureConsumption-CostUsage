@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Define period
-startTime="2025-03-31"
-endTime="2025-04-29"
+# Period yyyy-mm-dd
+startDate="2025-04-01"
+endDate="2025-05-06"
 
 # Log in to Azure
-az login --only-show-errors
+#az login --only-show-errors
 
 # Get access token
-access_token=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv) && echo $access_token
+access_token=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
 
 # Get subscriptions
 subscriptions=$(az account list --query '[].{id:id, name:name}' -o json)
@@ -17,6 +17,7 @@ subscriptions=$(az account list --query '[].{id:id, name:name}' -o json)
 total=0
 
 # Print header
+printf "Azure consumption report from $startDate to $endDate:\n"
 printf "%-50s %10s\n" "Subscription" "Usage (USD)"
 printf "%-50s %10s\n" "------------" "-----------"
 # install required tools
@@ -26,17 +27,39 @@ while read -r sub; do
     subscriptionId=$(echo "$sub" | jq -r '.id')
     subscriptionName=$(echo "$sub" | jq -r '.name')
 
-    echo "Processing subscription: $subscriptionName ($subscriptionId)" >&2
+    #echo "Processing subscription: $subscriptionName ($subscriptionId)" >&2
 
-    filter="properties/usageStart ge '$startTime' and properties/usageEnd le '$endTime'"
-    encoded_filter=$(python3 -c "import urllib.parse; print(urllib.parse.quote(\"$filter\"))")
-    url="https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.Consumption/usageDetails?api-version=2024-08-01&%24filter=$encoded_filter"
+    # Define API URL
+    apiVersion="2023-03-01"
+    url="https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.CostManagement/query?api-version=$apiVersion"
 
-    response=$(curl -s -X GET "$url" \
-        -H "Authorization: Bearer $access_token" \
-        -H "Content-Type: application/json")
+    # Define request body
+    body=$(jq -n --arg start "$startDate" --arg end "$endDate" '
+    {
+        type: "Usage",
+        timeframe: "Custom",
+        timePeriod: {
+            from: $start,
+            to: $end
+        },
+        dataset: {
+            granularity: "Accumulated",
+            aggregation: {
+                totalCost: {
+                    name: "CostUSD",
+                    function: "Sum"
+                }
+            }
+        }
+    }')
 
-    cost=$(echo "$response" | jq '[.value[].properties.costInUSD] | add // 0')
+     # Make API call
+    response=$(curl -s -X POST "$url" \
+        -H "Authorization: Bearer $token" \
+        -H "Content-Type: application/json" \
+        -d "$body")
+
+    cost=$(echo "$response" | jq '[.properties.rows[0][0]] | add // 0')
     printf "%-50s %10.2f\n" "$subscriptionName" "$cost"
 
     total=$(echo "$total + $cost" | bc)
