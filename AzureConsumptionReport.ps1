@@ -1,11 +1,11 @@
 # reference script: https://github.com/yannickdils/TheFinOpsXFiles/blob/a82a9829915c9ae50fb60c3c089f2c8d73f29599/Budget%20vs%20Cost/Script/RetrieveConsumptionUpdate.ps1
 
 # Period yyyy-mm-dd
-$startDate = "2025-05-01"
+$startDate = "2025-04-01"
 $endDate = "2025-05-07"
 
 # Connect to Azure account
-Connect-AzAccount
+#Connect-AzAccount
 
 # Get token for ARM
 $secureToken = (Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/").Token
