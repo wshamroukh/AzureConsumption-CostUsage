@@ -1,6 +1,8 @@
 #!/bin/bash
+# Get today's date in seconds since epoch
+today_sec=$(date +%s)
 
-# Function to validate date format and convert to seconds since epoch
+# Function to validate date format, ensure it's not in the future, and convert to seconds
 get_date_input() {
     local prompt="$1"
     local input date_seconds
@@ -12,8 +14,12 @@ get_date_input() {
         if [[ $input =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
             # Try to parse the date
             if date_seconds=$(date -d "$input" +%s 2>/dev/null); then
-                echo "$input|$date_seconds"
-                return
+                if (( date_seconds <= today_sec )); then
+                    echo "$input|$date_seconds"
+                    return
+                else
+                    echo -e "\e[1;31mDate cannot be in the future. Please enter a valid past or today's date.\e[0m" >&2
+                fi
             else
                 echo -e "\e[1;31mInvalid date. Please enter a valid calendar date.\e[0m" >&2
             fi
@@ -41,6 +47,7 @@ while true; do
 done
 
 echo -e "\e[1;34mAzure Consumption report will be generated from $startDate till $endDate\e[0m"
+
 
 # Log in to Azure
 az login --only-show-errors
