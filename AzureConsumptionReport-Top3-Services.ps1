@@ -44,7 +44,7 @@ foreach ($subscription in $subscriptions) {
             granularity = "None"
             aggregation = @{
                 totalCost = @{
-                    name = "PreTaxCost"
+                    name = "CostUSD"
                     function = "Sum"
                 }
             }
@@ -66,7 +66,7 @@ foreach ($subscription in $subscriptions) {
         
         if ($usageResponse.properties.rows -and $usageResponse.properties.rows.Count -gt 0) {
             $serviceFamilyIndex = $usageResponse.properties.columns.name.IndexOf("ServiceFamily")
-            $costIndex = $usageResponse.properties.columns.name.IndexOf("PreTaxCost")
+            $costIndex = $usageResponse.properties.columns.name.IndexOf("CostUSD")
             
             $serviceCosts = @{}
             foreach ($row in $usageResponse.properties.rows) {
