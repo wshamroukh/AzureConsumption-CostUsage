@@ -1,14 +1,54 @@
 #!/bin/bash
 
-# Period yyyy-mm-dd
-startDate="2025-05-01"
-endDate="2025-05-07"
+# Function to validate date format and convert to seconds since epoch
+get_date_input() {
+    local prompt="$1"
+    local input date_seconds
+
+    while true; do
+        read -p "$prompt (yyyy-mm-dd): " input
+
+        # Validate format using regex
+        if [[ $input =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            # Try to parse the date
+            if date_seconds=$(date -d "$input" +%s 2>/dev/null); then
+                echo "$input|$date_seconds"
+                return
+            else
+                echo "Invalid date. Please enter a valid calendar date." >&2
+            fi
+        else
+            echo "Incorrect format. Please use yyyy-mm-dd." >&2
+        fi
+    done
+}
+
+while true; do
+    start_input=$(get_date_input "Enter the start date")
+    end_input=$(get_date_input "Enter the end date")
+
+    startDate="${start_input%%|*}"
+    start_sec="${start_input##*|}"
+
+    endDate="${end_input%%|*}"
+    end_sec="${end_input##*|}"
+
+    if (( start_sec < end_sec )); then
+        break
+    else
+        echo "Start date must be earlier than end date. Please try again." >&2
+    fi
+done
+
+echo "Start Date: $startDate"
+echo "End Date: $endDate"
+
 
 # Log in to Azure
 az login --only-show-errors
 
 # Get access token
-access_token=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
+token=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
 
 # Get subscriptions
 subscriptions=$(az account list --query '[].{id:id, name:name}' -o json)
@@ -57,7 +97,6 @@ while read -r sub; do
         -H "Authorization: Bearer $token" \
         -H "Content-Type: application/json" \
         -d "$body")
-
     cost=$(echo "$response" | jq '[.properties.rows[0][0]] | add // 0')
     sub_costs["$subscriptionName"]=$cost
 
