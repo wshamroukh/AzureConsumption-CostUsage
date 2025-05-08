@@ -15,10 +15,10 @@ get_date_input() {
                 echo "$input|$date_seconds"
                 return
             else
-                echo "Invalid date. Please enter a valid calendar date." >&2
+                echo -e "\e[1;31mInvalid date. Please enter a valid calendar date.\e[0m" >&2
             fi
         else
-            echo "Incorrect format. Please use yyyy-mm-dd." >&2
+            echo -e "\e[1;31mIncorrect format. Please use yyyy-mm-dd.\e[0m" >&2
         fi
     done
 }
@@ -36,13 +36,11 @@ while true; do
     if (( start_sec < end_sec )); then
         break
     else
-        echo "Start date must be earlier than end date. Please try again." >&2
+        echo -e "\e[1;31mStart date must be earlier than end date. Please try again.\e[0m" >&2
     fi
 done
 
-echo "Start Date: $startDate"
-echo "End Date: $endDate"
-
+echo -e "\e[1;34mAzure Consumption report will be generated from $startDate till $endDate\e[0m"
 
 # Log in to Azure
 az login --only-show-errors
@@ -66,7 +64,7 @@ while read -r sub; do
     subscriptionId=$(echo "$sub" | jq -r '.id')
     subscriptionName=$(echo "$sub" | jq -r '.name')
 
-    echo "Processing subscription: $subscriptionName ($subscriptionId)" >&2
+    echo -e "\e[1;35mProcessing subscription: $subscriptionName ($subscriptionId)\e[0m" >&2
 
     # Define API URL
     apiVersion="2023-03-01"
@@ -116,4 +114,4 @@ done
 
 # Print total cost
 echo ""
-echo "Total Azure consumption across all subscriptions: $(printf "%.2f" "$total") USD"
+echo -e "\e[1;36mTotal Azure consumption across all subscriptions: $(printf "%.2f" "$total") USD\e[0m"
