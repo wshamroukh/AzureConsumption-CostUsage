@@ -32,7 +32,7 @@ foreach ($subscription in $subscriptions) {
     $apiVersion = "2023-03-01"
     $simpleQueryUrl = "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.CostManagement/query?api-version=$apiVersion"
     
-    # Modified request body to group by ServiceFamily
+    # Modified request body to group by serviceName
     $body = @{
         type = "Usage"
         timeframe = "Custom"
@@ -51,7 +51,7 @@ foreach ($subscription in $subscriptions) {
             grouping = @(
                 @{
                     type = "Dimension"
-                    name = "ServiceFamily"
+                    name = "ServiceName"
                 }
             )
         }
@@ -65,16 +65,16 @@ foreach ($subscription in $subscriptions) {
         $topServices = @()
         
         if ($usageResponse.properties.rows -and $usageResponse.properties.rows.Count -gt 0) {
-            $serviceFamilyIndex = $usageResponse.properties.columns.name.IndexOf("ServiceFamily")
+            $serviceNameIndex = $usageResponse.properties.columns.name.IndexOf("ServiceName")
             $costIndex = $usageResponse.properties.columns.name.IndexOf("CostUSD")
             
             $serviceCosts = @{}
             foreach ($row in $usageResponse.properties.rows) {
-                $serviceFamily = $row[$serviceFamilyIndex]
+                $serviceName = $row[$serviceNameIndex]
                 $cost = $row[$costIndex]
                 $totalCost += $cost
-                if ($serviceFamily) {
-                    $serviceCosts[$serviceFamily] += $cost
+                if ($serviceName) {
+                    $serviceCosts[$serviceName] += $cost
                 }
             }
             
