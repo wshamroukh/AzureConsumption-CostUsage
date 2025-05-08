@@ -9,7 +9,13 @@ function Get-DateInput($prompt) {
             try {
                 # Try to parse the date to ensure it's valid
                 $parsedDate = [datetime]::ParseExact($inputDate, 'yyyy-MM-dd', $null)
-                return $parsedDate
+
+                # Check if the date is not in the future
+                if ($parsedDate -le [datetime]::Today) {
+                    return $parsedDate
+                } else {
+                    Write-Host "Date cannot be in the future. Please enter a past or today's date." -ForegroundColor Red
+                }
             } catch {
                 Write-Host "Invalid date. Please enter a valid date in yyyy-mm-dd format." -ForegroundColor Red
             }
@@ -19,18 +25,29 @@ function Get-DateInput($prompt) {
     }
 }
 
+function Get-EndDate() {
+    while ($true) {
+        $useToday = Read-Host "Do you want to use today's date as the end date? (Y/N)"
+        if ($useToday -match '^[Yy]$') {
+            return [datetime]::Today
+        } elseif ($useToday -match '^[Nn]$') {
+            return Get-DateInput "Enter the end date (yyyy-mm-dd)"
+        } else {
+            Write-Host "Please enter Y for yes or N for no." -ForegroundColor Yellow
+        }
+    }
+}
+
 do {
     $startDate = Get-DateInput "Enter the start date (yyyy-mm-dd)"
-    $endDate = Get-DateInput "Enter the end date (yyyy-mm-dd)"
+    $endDate = Get-EndDate
 
     if ($startDate -ge $endDate) {
-        Write-Host "Start date must be earlier than end date. Please try again." -ForegroundColor Yellow
+        Write-Host "Start date must be earlier than end date. Please try again." -ForegroundColor Red
     }
 } while ($startDate -ge $endDate)
 
-Write-Host "Valid date range selected:"
-Write-Host "Start Date: $startDate"
-Write-Host "End Date: $endDate"
+Write-Host "Azure Consumption report will be generated from $startDate till $endDate" -ForegroundColor Cyan
 
 # Connect to Azure account
 #Connect-AzAccount
