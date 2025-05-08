@@ -1,8 +1,36 @@
 # reference script: https://github.com/yannickdils/TheFinOpsXFiles/blob/a82a9829915c9ae50fb60c3c089f2c8d73f29599/Budget%20vs%20Cost/Script/RetrieveConsumptionUpdate.ps1
 
-# Period yyyy-mm-dd
-$startDate = "2025-04-01"
-$endDate = "2025-05-07"
+function Get-DateInput($prompt) {
+    while ($true) {
+        $inputDate = Read-Host $prompt
+
+        # Check if the input matches the pattern yyyy-mm-dd
+        if ($inputDate -match '^\d{4}-\d{2}-\d{2}$') {
+            try {
+                # Try to parse the date to ensure it's valid
+                $parsedDate = [datetime]::ParseExact($inputDate, 'yyyy-MM-dd', $null)
+                return $parsedDate
+            } catch {
+                Write-Host "Invalid date. Please enter a valid date in yyyy-mm-dd format." -ForegroundColor Red
+            }
+        } else {
+            Write-Host "Date format is incorrect. Use yyyy-mm-dd." -ForegroundColor Red
+        }
+    }
+}
+
+do {
+    $startDate = Get-DateInput "Enter the start date (yyyy-mm-dd)"
+    $endDate = Get-DateInput "Enter the end date (yyyy-mm-dd)"
+
+    if ($startDate -ge $endDate) {
+        Write-Host "Start date must be earlier than end date. Please try again." -ForegroundColor Yellow
+    }
+} while ($startDate -ge $endDate)
+
+Write-Host "Valid date range selected:"
+Write-Host "Start Date: $startDate"
+Write-Host "End Date: $endDate"
 
 # Connect to Azure account
 #Connect-AzAccount
