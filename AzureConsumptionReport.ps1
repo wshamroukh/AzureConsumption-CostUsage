@@ -51,7 +51,7 @@ Write-Host "Azure Consumption report will be generated from $startDate till $end
 
 
 # Connect to Azure account
-#Connect-AzAccount
+Connect-AzAccount
 
 # Get token for ARM
 $secureToken = (Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/").Token
