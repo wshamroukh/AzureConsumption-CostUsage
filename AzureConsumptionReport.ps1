@@ -25,9 +25,22 @@ function Get-DateInput($prompt) {
     }
 }
 
+function Get-EndDate() {
+    while ($true) {
+        $useToday = Read-Host "Do you want to use today's date as the end date? (Y/N)"
+        if ($useToday -match '^[Yy]$') {
+            return [datetime]::Today
+        } elseif ($useToday -match '^[Nn]$') {
+            return Get-DateInput "Enter the end date (yyyy-mm-dd)"
+        } else {
+            Write-Host "Please enter Y for yes or N for no." -ForegroundColor Yellow
+        }
+    }
+}
+
 do {
     $startDate = Get-DateInput "Enter the start date (yyyy-mm-dd)"
-    $endDate = Get-DateInput "Enter the end date (yyyy-mm-dd)"
+    $endDate = Get-EndDate
 
     if ($startDate -ge $endDate) {
         Write-Host "Start date must be earlier than end date. Please try again." -ForegroundColor Red
@@ -35,6 +48,7 @@ do {
 } while ($startDate -ge $endDate)
 
 Write-Host "Azure Consumption report will be generated from $startDate till $endDate" -ForegroundColor Cyan
+
 
 # Connect to Azure account
 #Connect-AzAccount

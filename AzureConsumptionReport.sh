@@ -1,5 +1,6 @@
 #!/bin/bash
 # Get today's date in seconds since epoch
+today=$(date +%Y-%m-%d)
 today_sec=$(date +%s)
 
 # Function to validate date format, ensure it's not in the future, and convert to seconds
@@ -29,9 +30,30 @@ get_date_input() {
     done
 }
 
+# Function to ask user if they want to use today's date as end date
+get_end_date_input() {
+    local choice
+    while true; do
+        read -p "Do you want to use today's date as the end date? (Y/N): " choice
+        case "$choice" in
+            [Yy])
+                echo "$today|$today_sec"
+                return
+                ;;
+            [Nn])
+                get_date_input "Enter the end date"
+                return
+                ;;
+            *)
+                echo -e "\e[1;33mPlease enter Y or N.\e[0m" >&2
+                ;;
+        esac
+    done
+}
+
 while true; do
     start_input=$(get_date_input "Enter the start date")
-    end_input=$(get_date_input "Enter the end date")
+    end_input=$(get_end_date_input)
 
     startDate="${start_input%%|*}"
     start_sec="${start_input##*|}"
@@ -48,9 +70,8 @@ done
 
 echo -e "\e[1;34mAzure Consumption report will be generated from $startDate till $endDate\e[0m"
 
-
 # Log in to Azure
-az login --only-show-errors
+#az login --only-show-errors
 
 # Get access token
 token=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
