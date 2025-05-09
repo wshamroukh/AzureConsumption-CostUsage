@@ -106,7 +106,7 @@ $results = @()
 foreach ($subscription in $subscriptions) {
     $subscriptionId = $subscription.Id
     $subscriptionName = $subscription.Name
-    Write-Output "Processing subscription: $subscriptionName ($subscriptionId)"
+    Write-Host "Processing subscription: $subscriptionName ($subscriptionId)" -ForegroundColor Magenta
 
     $apiVersion = "2023-03-01"
     $simpleQueryUrl = "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.CostManagement/query?api-version=$apiVersion"
@@ -159,4 +159,4 @@ $results | Sort-Object UsageUSD -Descending | Format-Table -AutoSize
 # Calculate and display total cost
 $totalUsage = ($results | Where-Object { $_.UsageUSD -is [double] } | Measure-Object -Property UsageUSD -Sum).Sum
 $totalUsageRounded = [math]::Round($totalUsage, 2)
-Write-Output "Total Azure consumption across all subscriptions: $totalUsageRounded USD"
+Write-Host "Total Azure consumption across all subscriptions: $totalUsageRounded USD" -ForegroundColor Green
