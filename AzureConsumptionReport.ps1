@@ -26,6 +26,7 @@ function Show-DatePicker {
     $datePicker.Format = 'Short'
     $datePicker.Width = 220
     $datePicker.Value = [datetime]::Today
+    $datePicker.MaxDate = [datetime]::Today  # ✅ Prevent future dates
     $datePicker.Location = New-Object Drawing.Point(15, 45)
     $form.Controls.Add($datePicker)
 
