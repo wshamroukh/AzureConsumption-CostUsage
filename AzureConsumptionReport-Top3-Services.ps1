@@ -84,7 +84,7 @@ do {
 Write-Host "Azure Consumption report will be generated from $startDate till $endDate" -ForegroundColor Cyan
 
 # Connect to Azure account
-Connect-AzAccount
+#Connect-AzAccount
 
 # Get token for ARM
 $secureToken = (Get-AzAccessToken -AsSecureString -ResourceUrl "https://management.azure.com/").Token
@@ -182,7 +182,19 @@ foreach ($subscription in $subscriptions) {
 }
 
 Write-Host "`nAzure consumption report from $startDate to $($endDate):" -ForegroundColor Green
-$results | Sort-Object UsageUSD -Descending | Format-Table -AutoSize -Property Subscription, UsageUSD, TopServices
+$sortedResults = $results | Sort-Object UsageUSD -Descending
+
+foreach ($entry in $sortedResults) {
+    Write-Host ("{0,-35} {1,8}" -f $entry.Subscription, "$($entry.UsageUSD) USD") -ForegroundColor Cyan
+    if ($entry.TopServices -ne "No data" -and $entry.TopServices -ne "Error") {
+        $entry.TopServices -split ', ' | ForEach-Object {
+            Write-Host ("    - $_") -ForegroundColor Gray
+        }
+    } else {
+        Write-Host ("    - $($entry.TopServices)") -ForegroundColor Yellow
+    }
+}
+
 
 $totalUsage = ($results | Where-Object { $_.UsageUSD -is [double] } | Measure-Object -Property UsageUSD -Sum).Sum
 $totalUsageRounded = [math]::Round($totalUsage, 2)

@@ -71,7 +71,7 @@ done
 echo -e "\e[1;34mAzure Consumption report will be generated from $startDate till $endDate\e[0m"
 
 # Log in to Azure
-az login --only-show-errors
+#az login --only-show-errors
 
 # Get access token
 token=$(az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv)
