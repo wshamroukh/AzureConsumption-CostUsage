@@ -238,10 +238,15 @@ Write-Host "`nAzure consumption report from $startDate to $($endDate):" -Foregro
 $sortedResults = $results | Sort-Object UsageUSD -Descending
 
 foreach ($entry in $sortedResults) {
-    Write-Host ("{0,-35} {1,8}" -f $entry.Subscription, "$($entry.UsageUSD) USD") -ForegroundColor Cyan
+    Write-Host ("{0,-40} {1,8}" -f $entry.Subscription, "$($entry.UsageUSD) USD") -ForegroundColor Cyan
+    Write-Host "Top 3 Services:" -ForegroundColor DarkYellow
     if ($entry.TopServices -ne "No data" -and $entry.TopServices -ne "Error") {
         $entry.TopServices -split ', ' | ForEach-Object {
-            Write-Host ("    - $_") -ForegroundColor Gray
+            $serviceName, $serviceUsage = $_ -split ': '
+            $serviceUsageFormatted = if ($serviceUsage -and $serviceUsage -as [double]) { "{0:N2} USD" -f $serviceUsage } else { $serviceUsage }
+            
+            # Keep service name indented, align usage with subscription usage column
+            Write-Host ("   - {0,-29} {1,15}" -f $serviceName, $serviceUsageFormatted) -ForegroundColor Gray
         }
     } else {
         Write-Host ("    - $($entry.TopServices)") -ForegroundColor Yellow
