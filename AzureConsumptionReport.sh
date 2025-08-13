@@ -130,7 +130,7 @@ while read -r sub; do
 done < <(echo "$subscriptions" | jq -c '.[]') 
 
 # Print header
-printf "Azure consumption report from $startDate to $endDate:\n"
+echo -e "\e[1;32mAzure consumption report from $startDate to $endDate:\n\e[0m"
 printf "%-50s %10s\n" "Subscription" "Usage (USD)"
 printf "%-50s %10s\n" "------------" "-----------"
 
@@ -142,4 +142,4 @@ done
 
 # Print total cost
 echo ""
-echo -e "\e[1;36mTotal Azure consumption across all subscriptions: $(printf "%.2f" "$total") USD\e[0m"
+echo -e "\e[1;32mTotal Azure consumption across all subscriptions: $(printf "%.2f" "$total") USD\e[0m"
