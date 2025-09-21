@@ -254,7 +254,7 @@ $sortedResults = $results | Sort-Object @{Expression = { if ($_.UsageUSD -is [do
 foreach ($entry in $sortedResults) {
     # Format subscription usage
     $usageDisplay = if ($entry.UsageUSD -is [double]) { "{0:N2} USD" -f $entry.UsageUSD } else { $entry.UsageUSD }
-    Write-Host ("{0,-66} {1,15}" -f $entry.Subscription, $usageDisplay) -ForegroundColor Cyan
+    Write-Host ("{0,-74} {1,15}" -f $entry.Subscription, $usageDisplay) -ForegroundColor Cyan
     Write-Host "Top 3 Services:" -ForegroundColor DarkYellow
 
     if ($entry.TopServices -ne "No data" -and $entry.TopServices -ne "Error") {
@@ -263,7 +263,7 @@ foreach ($entry in $sortedResults) {
             $serviceUsageFormatted = if ($serviceUsage -and $serviceUsage -as [double]) { "{0:N2} USD" -f $serviceUsage } else { $serviceUsage }
             
             # Keep service name indented, align usage with subscription usage column
-            Write-Host ("    {0,-62} {1,15}" -f $serviceName, $serviceUsageFormatted) -ForegroundColor Gray
+            Write-Host ("    {0,-70} {1,15}" -f $serviceName, $serviceUsageFormatted) -ForegroundColor Gray
         }
     } else {
         Write-Host ("    - $($entry.TopServices)") -ForegroundColor Yellow
