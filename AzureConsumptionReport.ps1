@@ -159,7 +159,7 @@ $results = @()
 foreach ($subscription in $subscriptions) {
     $subscriptionId = $subscription.Id
     $subscriptionName = $subscription.Name
-    Write-Host "Processing subscription: $subscriptionName ($subscriptionId)" -ForegroundColor Magenta
+    Write-Host "Processing subscription: $subscriptionName ($subscriptionId)" -ForegroundColor Blue
 
     $apiVersion = "2023-03-01"
     $simpleQueryUrl = "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.CostManagement/query?api-version=$apiVersion"
