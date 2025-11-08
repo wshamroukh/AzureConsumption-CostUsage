@@ -205,7 +205,7 @@ foreach ($subscription in $subscriptions) {
         UsageUSD     = $roundedCost
     }
 }
-Write-Output "`nAzure consumption report from $startDate to $($endDate):" -ForegroundColor Green
+Write-Host "`nAzure consumption report from $startDate to $($endDate):" -ForegroundColor Green
 # Output the results in a table
 $results | Sort-Object UsageUSD -Descending | Format-Table -AutoSize
 
