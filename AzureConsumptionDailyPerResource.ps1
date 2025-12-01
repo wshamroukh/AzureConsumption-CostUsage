@@ -201,7 +201,7 @@ foreach ($sub in $subscriptions) {
 
         $rows += [PSCustomObject]@{
             SubscriptionName   = $sub.Name
-            UsageDate          = $r[$colIndex["UsageDate"]]
+            UsageDate          = [datetime]::ParseExact($r[$colIndex["UsageDate"]], "yyyyMMdd", $null).ToString("dd/MM/yyyy")
             ResourceId         = $r[$colIndex["ResourceId"]]
             ResourceType       = $r[$colIndex["ResourceType"]]
             ResourceLocation   = $r[$colIndex["ResourceLocation"]]
