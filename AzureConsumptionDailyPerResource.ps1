@@ -120,10 +120,19 @@ do {
 # OUTPUT FILE
 # ==============================
 $outputFile = "C:\temp\DailyUsagePerResource.csv"
+$folder = "C:\temp"
 
-if (Test-Path $outputFile) { Remove-Item $outputFile }
+# Create folder if it doesn't exist
+if (!(Test-Path $folder)) {
+    New-Item -ItemType Directory -Path $folder | Out-Null
+}
 
-Write-Host "`nGenerating daily usage per resource..." -ForegroundColor Cyan
+# Remove the file if it exists
+if (Test-Path $outputFile) {
+    Remove-Item $outputFile
+}
+
+Write-Host "`nAzure Daily Consumption per resource report will be generated from $startDate till $endDate" -ForegroundColor Cyan
 
 # ==============================
 # GET TOKEN
@@ -148,7 +157,7 @@ $rows = @()
 # ==============================
 foreach ($sub in $subscriptions) {
 
-    Write-Host "`nProcessing subscription: $($sub.Name)" -ForegroundColor Yellow
+    Write-Host "Processing subscription: $($sub.Name) ($($sub.Id))"  -ForegroundColor Blue
 
     $queryUrl = "https://management.azure.com/subscriptions/$($sub.Id)/providers/Microsoft.CostManagement/query?api-version=2023-03-01"
 
