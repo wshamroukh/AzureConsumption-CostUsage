@@ -122,6 +122,8 @@ while read -r sub; do
     response=$(curl -s -X POST "$url" \
         -H "Authorization: Bearer $token" \
         -H "Content-Type: application/json" \
+        -H "ClientType: WaddahCostReport" \
+        -H "X-Ms-Command-Name: CostAnalysis" \
         -d "$body")
     cost=$(echo "$response" | jq '[.properties.rows[0][0]] | add // 0')
     sub_costs["$subscriptionName"]=$cost

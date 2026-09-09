@@ -148,6 +148,8 @@ $token = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ssPtr)
 $headers = @{
     "Authorization" = "Bearer $token"
     "Content-Type" = "application/json"
+    "ClientType" = "WaddahCostReport"
+    "X-Ms-Command-Name" = "CostAnalysis"
 }
 
 # Get all subscriptions
